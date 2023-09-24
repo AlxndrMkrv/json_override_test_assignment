@@ -1,11 +1,15 @@
-from typing import Self as _Self, List as _List, Dict as _Dict
+try:
+    from typing import Self as _Self
+except ImportError:
+    _Self = "TreeItem"
+from typing import Union as _Union
 from .._configs_handler import Configs as _Configs
 
 
 class TreeItem:
     Fields: tuple = ("key", "value")
 
-    def __init__(self, parent: "TreeItem" = None):
+    def __init__(self, parent: _Self = None):
         self.__parent = parent
         self.__fields = dict.fromkeys(TreeItem.Fields, "") | {"type": None}
         self.__children = []
@@ -72,7 +76,7 @@ class TreeItem:
         self.__fields.update({"type": value_type})
 
     @classmethod
-    def load(cls, value: _Configs | dict | list | str,
+    def load(cls, value: _Union[_Configs, dict, list, str],
              parent: _Self = None, sort=True) -> _Self:
         """Create a 'root' TreeItem from a nested list or a nested dictonary
 

@@ -1,7 +1,7 @@
 from PySide2.QtCore import QObject as _QObject, Qt as _Qt, \
     QAbstractItemModel as _QAbstractItemModel, QModelIndex as _QModelIndex, \
     Signal as _Signal
-from typing import Any as _Any
+from typing import Any as _Any, Optional as _Optional
 
 from ._item import TreeItem as _TreeItem
 from .._configs_handler import Configs as _Configs
@@ -12,9 +12,7 @@ class TreeModel (_QAbstractItemModel):
     newOverride = _Signal(dict, name="newOverride")
 
     def __init__(self, parent: _QObject = None):
-        #super().__init__(parent)  #_QAbstractItemModel.__init__(self, parent)
         self._root_item = _TreeItem()
-        #self._headers = ("config", "key", "value")
         _QAbstractItemModel.__init__(self, parent)
 
     def clear(self):
@@ -46,7 +44,7 @@ class TreeModel (_QAbstractItemModel):
             return item.value
 
     def __create_override(self, index: _QModelIndex,
-                          override: dict|None) -> dict:
+                          override: _Optional[dict]) -> dict:
         item = index.internalPointer()  # type: _TreeItem
 
         # Stop when None reached
