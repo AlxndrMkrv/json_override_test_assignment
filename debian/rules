@@ -1,0 +1,5 @@
+#!/bin/env -S make -f
+export PYBUILD_NAME=json_override_test_assignment
+
+%:
+	dh $@ --with python3 --buildsystem=pybuild
