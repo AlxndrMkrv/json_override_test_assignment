@@ -103,5 +103,5 @@ class Configs (dict):
         """Dump JSON data into given file"""
         # pylint: disable=invalid-name
         with open(filename, 'w', encoding="ascii") as f:
-            _json.dump(self, f)
+            _json.dump(self, f, indent=2)
             f.write('\n')
