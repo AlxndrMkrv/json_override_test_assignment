@@ -42,7 +42,7 @@ $ python3 -m unittest discover -v tests
 
 ## Project structure
 
-``` bash
+```
 ├── run.py  # simple script to import application modules and run them
 |
 ├── json_override_test_assignment
