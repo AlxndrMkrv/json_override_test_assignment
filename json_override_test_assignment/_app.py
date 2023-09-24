@@ -14,21 +14,22 @@ class Application (_QApplication):
     """QApplication derive. """
     __configs: _Configs
 
-    def __init__(self, title: str):
+    def __init__(self, title: str, configs_dir: str, overrides_file: str):
         self.setApplicationName(title)
+        self.__configs_dir = configs_dir
+        self.__overrides_file = overrides_file
         _QApplication.__init__(self)
 
-    @staticmethod
-    def read_configs() -> _Configs:
+    def read_configs(self) -> _Configs:
         """Read JSON from config files and overrides. Return merged data"""
-        configs = _Configs.from_config_dir(_paths.CONFIGS)
-        overrides = _Configs.from_override_file(_paths.OVERRIDES)
+        configs = _Configs.from_config_dir(self.__configs_dir)
+        overrides = _Configs.from_override_file(self.__overrides_file)
         return _Configs.override(configs, overrides)
 
     def on_override(self, override: dict):
         """Slot for a TreeModel "newOverride" signal. Catches user input"""
         self.__configs = _Configs.override(self.__configs, override)
-        self.__configs.dump(_paths.OVERRIDES)
+        self.__configs.dump(self.__overrides_file)
 
     def exec(self):
         """Method to run the application"""
