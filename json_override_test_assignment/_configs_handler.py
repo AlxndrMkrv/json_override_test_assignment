@@ -6,7 +6,7 @@ from typing import List as _List, Dict as _Dict
 from copy import deepcopy as _deepcopy
 
 
-ValueType = str | _List[str] | _Dict[str, str]
+# ValueType = str | _List[str] | _Dict[str, str]
 
 
 class Configs (dict):
