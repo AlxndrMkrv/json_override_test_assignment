@@ -8,6 +8,9 @@ from .._configs_handler import Configs as _Configs
 
 
 class TreeModel (_QAbstractItemModel):
+    """The model providing interaction between user interface and JSON
+    configuration files. Uses TreeItem as inner data storage"""
+
     # register signal for value change.
     newOverride = _Signal(dict, name="newOverride")
 
@@ -16,19 +19,26 @@ class TreeModel (_QAbstractItemModel):
         _QAbstractItemModel.__init__(self, parent)
 
     def clear(self):
+        """Override from QAbstractItemModel. Clear the underlying Tree items
+        with empty configs"""
         self.load(_Configs())
 
-    def load(self, document: _Configs):
-        assert isinstance(document, _Configs)
+    def load(self, configs: _Configs):
+        """Override from QAbstractItemModel. Fills the underlying Tree items
+        with given configs"""
+        assert isinstance(configs, _Configs)
 
         self.beginResetModel()
-        self._root_item = _TreeItem.load(document)
-        self._root_item.value_type = type(document)
+        self._root_item = _TreeItem.load(configs)
+        self._root_item.value_type = type(configs)
         self.endResetModel()
 
         return True
 
     def data(self, index: _QModelIndex, role: _Qt.ItemDataRole) -> _Any:
+        """
+        Override from QAbstractItemModel. Returns underlying Tree item fields
+        """
         if not index.isValid():
             return None
 
@@ -45,6 +55,7 @@ class TreeModel (_QAbstractItemModel):
 
     def __create_override(self, index: _QModelIndex,
                           override: _Optional[dict]) -> dict:
+        """Recursively extract override dict from index of changed value"""
         item = index.internalPointer()  # type: _TreeItem
 
         # Stop when None reached
@@ -70,24 +81,19 @@ class TreeModel (_QAbstractItemModel):
             return self.__create_override(index.parent(), {item.key: override})
 
     def setData(self, index: _QModelIndex, value: _Any, role: _Qt.ItemDataRole):
+        """
+        Override from QAbstractItemModel. Catch value change and emit
+        'newOverride' signal
+        """
+
         if role == _Qt.EditRole:
             if index.column() == _TreeItem.Fields.index("value"):
+                # set item value
                 item = index.internalPointer()  # type: _TreeItem
                 item.value = str(value)
 
+                # extract override from index and emit the signal
                 override = self.__create_override(index, None)
-                #breakpoint()
-
-                #if isinstance(index.internalPointer())
-
-                '''override = item.value if isinstance(index.internalPointer().key, str) else in
-                while index.internalPointer() is not None:
-                    key = index.internalPointer().key
-                    # ignore non-string keys (list elements)
-                    if isinstance(key, str):
-                        override = {key: override}
-                    index = index.parent()'''
-
                 self.newOverride.emit(override)
                 return True
 
@@ -140,9 +146,8 @@ class TreeModel (_QAbstractItemModel):
         return self.createIndex(parent_item.row(), 0, parent_item)
 
     def rowCount(self, parent=_QModelIndex()):
-        """Override from QAbstractItemModel
-
-        Return row count from parent index
+        """
+        Override from QAbstractItemModel. Return row count from parent index
         """
         if parent.column() > 0:
             return 0
@@ -155,6 +160,9 @@ class TreeModel (_QAbstractItemModel):
         return parent_item.child_count()
 
     def columnCount(self, parent=_QModelIndex()):
+        """
+        Override from QAbstractItemModel. Return number of columns
+        """
         return len(_TreeItem.Fields)
 
     def flags(self, index: _QModelIndex) -> _Qt.ItemFlags:
@@ -164,27 +172,3 @@ class TreeModel (_QAbstractItemModel):
             return _Qt.ItemIsEditable | flags
         else:
             return flags
-
-    def to_json(self, item=None):
-
-        if item is None:
-            item = self._rootItem
-
-        nchild = item.childCount()
-
-        if item.value_type is dict:
-            document = {}
-            for i in range(nchild):
-                ch = item.child(i)
-                document[ch.key] = self.to_json(ch)
-            return document
-
-        elif item.value_type == list:
-            document = []
-            for i in range(nchild):
-                ch = item.child(i)
-                document.append(self.to_json(ch))
-            return document
-
-        else:
-            return item.value

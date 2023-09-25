@@ -7,6 +7,8 @@ from .._configs_handler import Configs as _Configs
 
 
 class TreeItem:
+    """Underlying values storage for TreeModel"""
+    # note: Fields a used both in this class and as column names for TreeModel
     Fields: tuple = ("key", "value")
 
     def __init__(self, parent: _Self = None):
@@ -15,9 +17,11 @@ class TreeItem:
         self.__children = []
 
     def append_child(self, item: _Self):
+        """Attach given item to tree"""
         self.__children.append(item)
 
     def child(self, row: int) -> _Self:
+        """Return the children at given row"""
         return self.__children[row]
 
     def parent(self) -> _Self:
@@ -33,23 +37,8 @@ class TreeItem:
         return self.__parent.__children.index(self) if self.__parent else 0
 
     def get_field(self, name: str) -> str:
+        """Return field value with given name"""
         return self.__fields.get(name, "")
-
-    @property
-    def config(self) -> str:
-        return self.__fields.get("config", "")
-
-    @config.setter
-    def config(self, config: str):
-        self.__fields.update({"config": config})
-
-    @property
-    def param(self) -> str:
-        return self.__fields.get("param", "")
-
-    @param.setter
-    def param(self, param: str):
-        self.__fields.update({"param": param})
 
     @property
     def key(self) -> str:
@@ -78,18 +67,7 @@ class TreeItem:
     @classmethod
     def load(cls, value: _Union[_Configs, dict, list, str],
              parent: _Self = None, sort=True) -> _Self:
-        """Create a 'root' TreeItem from a nested list or a nested dictonary
-
-        Examples:
-            with open("file.json") as file:
-                data = json.dump(file)
-                root = TreeItem.load(data)
-
-        This method is a recursive function that calls itself.
-
-        Returns:
-            TreeItem: TreeItem
-        """
+        """Recursively build items tree from given JSON configuration data"""
         root_item = TreeItem(parent)
         root_item.key = "root"
 
@@ -99,7 +77,8 @@ class TreeItem:
             for key, value in items:
                 child = cls.load(value, root_item)
                 child.__fields.update({"key": key,
-                                       "type": _Configs if is_config_item else dict})
+                                       "type": _Configs if is_config_item
+                                       else dict})
                 root_item.append_child(child)
 
         elif isinstance(value, list):
