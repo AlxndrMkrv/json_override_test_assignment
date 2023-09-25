@@ -3,7 +3,7 @@ Section: python
 X-Python3-Version: >= 3.8
 Priority: extra
 Maintainer: Alexander Makarov <alexander.makarov@live.com>
-Build-Depends: python3, dh-python (>= 4.2)
+Build-Depends: python3, debhelper, dh-python (>= 4.2)
 Standards-Version: 4.0.0
 Homepage: https://github.com/AlxndrMkrv/json_override_test_assignment
 
