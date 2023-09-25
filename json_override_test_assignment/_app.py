@@ -12,7 +12,8 @@ from . import _paths
 
 class Application (_QApplication):
     """QApplication derive. """
-    __configs: _Configs
+    __original: _Configs
+    __actual: _Configs
 
     def __init__(self, title: str, configs_dir: str, overrides_file: str):
         self.setApplicationName(title)
@@ -22,14 +23,17 @@ class Application (_QApplication):
 
     def read_configs(self) -> _Configs:
         """Read JSON from config files and overrides. Return merged data"""
-        configs = _Configs.from_config_dir(self.__configs_dir)
+        self.__original = _Configs.from_config_dir(self.__configs_dir)
         overrides = _Configs.from_override_file(self.__overrides_file)
-        return _Configs.override(configs, overrides)
+        return _Configs.override(self.__original, overrides)
 
     def on_override(self, override: dict):
-        """Slot for a TreeModel "newOverride" signal. Catches user input"""
-        self.__configs = _Configs.override(self.__configs, override)
-        self.__configs.dump(self.__overrides_file)
+        """
+        Slot for a TreeModel "newOverride" signal. Catches user input and saves
+        difference between original configs and actuals into overrides.json"""
+        self.__actual = _Configs.override(self.__actual, override)
+        _Configs.diff(self.__original,
+                      self.__actual).dump(self.__overrides_file)
 
     def exec(self):
         """Method to run the application"""
@@ -44,8 +48,8 @@ class Application (_QApplication):
         model.newOverride.connect(self.on_override)
 
         # Read configs and load into model
-        self.__configs = self.read_configs()
-        model.load(self.__configs)
+        self.__actual = self.read_configs()
+        model.load(self.__actual)
 
         # Expand both columns and split width equally
         view.header().setSectionResizeMode(0, _QHeaderView.Stretch)
