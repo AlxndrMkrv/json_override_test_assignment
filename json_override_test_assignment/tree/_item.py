@@ -13,7 +13,8 @@ class TreeItem:
 
     def __init__(self, parent: _Self = None):
         self.__parent = parent
-        self.__fields = dict.fromkeys(TreeItem.Fields, "") | {"type": None}
+        self.__fields = dict.fromkeys(TreeItem.Fields, "") | {"type": None,
+                                                              "is_leaf": False}
         self.__children = []
 
     def append_child(self, item: _Self):
@@ -64,6 +65,9 @@ class TreeItem:
     def value_type(self, value_type):
         self.__fields.update({"type": value_type})
 
+    def is_leaf(self):
+        return self.__fields.get("is_leaf", None)
+
     @classmethod
     def load(cls, value: _Union[_Configs, dict, list, str],
              parent: _Self = None, sort=True) -> _Self:
@@ -90,7 +94,8 @@ class TreeItem:
 
         else:
             root_item.__fields.update({"value": value,
-                                       "type": type(value)})
+                                       "type": type(value),
+                                       "is_leaf": True})
 
         return root_item
 

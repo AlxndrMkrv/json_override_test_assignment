@@ -48,7 +48,6 @@ class TreeModel (_QAbstractItemModel):
             column_name = _TreeItem.Fields[index.column()]
             return item.get_field(column_name)
 
-        # Only column "value" is allowed to edit
         elif role == _Qt.EditRole and \
                 index.column() == _TreeItem.Fields.index("value"):
             return item.value
@@ -87,9 +86,10 @@ class TreeModel (_QAbstractItemModel):
         """
 
         if role == _Qt.EditRole:
-            if index.column() == _TreeItem.Fields.index("value"):
+            item = index.internalPointer()  # type: _TreeItem
+            if index.column() == _TreeItem.Fields.index("value") and \
+                    item.is_leaf():
                 # set item value
-                item = index.internalPointer()  # type: _TreeItem
                 item.value = str(value)
 
                 # extract override from index and emit the signal
