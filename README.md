@@ -6,7 +6,16 @@ The goal of the assignment is to create Qt application with following functional
 - override config fields with values recorded in _overrides.json_;
 - save changes made using the GUI to _overrides.json_;
 
-Also the application must be distributed as a .deb package with a certan rules.
+Also, the application must be distributed as a .deb package with a certan rules.
+
+
+## Testing
+
+To assure that core functionality works (JSON manipulations) run:
+
+``` bash
+$ python3 -m unittest discover -v tests
+```
 
 
 ## Building
@@ -28,16 +37,6 @@ To run the application after installation:
 ```bash
 $ json_override_test_assignment
 ```
-
-
-## Testing
-
-To assure that core functionality works (JSON manipulations) run:
-
-``` bash
-$ python3 -m unittest discover -v tests
-```
-
 
 
 ## Project structure
